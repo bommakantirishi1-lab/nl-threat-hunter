@@ -116,3 +116,203 @@ if st.button("Hunt"):
 3. Create unit tests for each module.
 4. Test the Streamlit app with various queries.
 5. Deploy and share for review.
+
+
+# Step 4: Data & Testing (Prove It Works, or It's Useless)
+
+## Overview
+
+This step focuses on creating test data, implementing unit tests, validating your implementation, and collecting metrics to prove your tool works.
+
+## 1. Generate Sample Data
+
+**File:** `data/sample_logs.json`
+
+Create realistic simulated security logs with 100+ entries. Example structure:
+
+```json
+[
+  {
+    "timestamp": "2026-03-14T10:30:00Z",
+    "ip": "192.168.1.100",
+    "process": "powershell.exe",
+    "risk_score": 80,
+    "event_type": "suspicious_execution"
+  },
+  {
+    "timestamp": "2026-03-14T11:45:00Z",
+    "ip": "10.0.0.50",
+    "process": "cmd.exe",
+    "risk_score": 65,
+    "event_type": "command_execution"
+  }
+]
+```
+
+**Generation Script** (generate_logs.py):
+
+```python
+import json
+import random
+from datetime import datetime, timedelta
+
+processes = ["powershell.exe", "cmd.exe", "svchost.exe", "rundll32.exe", "explorer.exe"]
+ips = [f"192.168.1.{i}" for i in range(1, 255)] + [f"10.0.0.{i}" for i in range(1, 255)]
+event_types = ["suspicious_execution", "command_execution", "network_connection", "registry_mod"]
+
+logs = []
+base_time = datetime.now() - timedelta(days=1)
+
+for i in range(100):
+    logs.append({
+        "timestamp": (base_time + timedelta(minutes=i*15)).isoformat() + "Z",
+        "ip": random.choice(ips),
+        "process": random.choice(processes),
+        "risk_score": random.randint(30, 100),
+        "event_type": random.choice(event_types)
+    })
+
+with open('data/sample_logs.json', 'w') as f:
+    json.dump(logs, f, indent=2)
+
+print("Generated 100 sample logs in data/sample_logs.json")
+```
+
+Run: `python generate_logs.py`
+
+## 2. Unit Tests
+
+**File:** `tests/test_translator.py`
+
+Test the LLM translation function with pytest:
+
+```python
+import pytest
+from src.translator import translate_to_query
+
+def test_translate_powershell():
+    """Test translation of PowerShell hunting query"""
+    result = translate_to_query("hunt for suspicious powershell executions")
+    assert "powershell" in result.lower() or "process" in result.lower()
+
+def test_translate_network():
+    """Test translation of network hunting query"""
+    result = translate_to_query("find unusual network connections")
+    assert "network" in result.lower() or "connection" in result.lower() or "ip" in result.lower()
+
+def test_translate_output_format():
+    """Test that output is a valid string"""
+    result = translate_to_query("test query")
+    assert isinstance(result, str)
+    assert len(result) > 0
+```
+
+Run: `pytest tests/test_translator.py -v`
+
+## 3. Manual Testing
+
+### Test Cases (20+ sample queries):
+
+1. Input: "Hunt for lateral movement from suspicious IPs"
+   - Expected output: KQL/EQL query with IP filtering and lateral movement patterns
+
+2. Input: "Find processes with network connections to unknown domains"
+   - Expected output: Query filtering on network connections and domain patterns
+
+3. Input: "Detect privilege escalation attempts"
+   - Expected output: Query matching privilege escalation TTPs
+
+4. Input: "Search for malware signatures in log files"
+   - Expected output: Query filtering on malware indicators
+
+5. Input: "Find command injection attempts"
+   - Expected output: Query matching command injection patterns
+
+### Testing Process:
+
+1. Run Streamlit app: `streamlit run src/app.py`
+2. Enter query in text box
+3. Select query language (KQL or EQL)
+4. Click "Hunt"
+5. Verify:
+   - Generated query syntax is correct
+   - Results match expected output
+   - MITRE mappings are appropriate
+   - Enrichment data loads correctly
+
+### Fix LLM Hallucinations:
+
+Add few-shot examples to improve accuracy:
+
+```python
+FEW_SHOT_EXAMPLES = """
+Example 1: 
+  Input: "find powershell"
+  Output: process_name == "powershell.exe"
+
+Example 2:
+  Input: "suspicious from russia"
+  Output: origin_country == "Russia" AND risk_score > 70
+
+Example 3:
+  Input: "network to c2"
+  Output: destination_ip IN ('malicious_ips_list') AND protocol IN ('tcp', 'udp')
+"""
+```
+
+## 4. Metrics & Accuracy
+
+### Tracking Metrics:
+
+**File:** `metrics.json`
+
+```json
+{
+  "total_tests": 50,
+  "successful_translations": 43,
+  "accuracy": "86%",
+  "average_response_time_ms": 250,
+  "false_positives": 2,
+  "false_negatives": 5,
+  "test_date": "2026-03-14"
+}
+```
+
+### Accuracy Calculation:
+
+```python
+def calculate_accuracy(correct_queries, total_queries):
+    return (correct_queries / total_queries) * 100
+
+# Example: 43 correct out of 50 = 86% accuracy
+accuracy = calculate_accuracy(43, 50)
+print(f"Query Translation Accuracy: {accuracy}%")
+```
+
+### Target Metrics:
+
+- **Query Accuracy:** >= 85% (85+ correct translations out of 100 hunts)
+- **Response Time:** < 500ms per query
+- **False Positive Rate:** < 5%
+- **False Negative Rate:** < 10%
+
+## 5. Validation Checklist
+
+- [ ] All 100 sample logs generated in `data/sample_logs.json`
+- [ ] All unit tests pass: `pytest tests/ -v`
+- [ ] Manual testing with 20+ sample queries completed
+- [ ] Metrics calculated and logged
+- [ ] Accuracy >= 85%
+- [ ] Response time < 500ms
+- [ ] LLM hallucinations identified and fixed
+- [ ] Results enriched with VT/AbuseIPDB data
+- [ ] MITRE mappings validated
+- [ ] README updated with metrics
+
+## Next Steps
+
+1. Complete all testing and validation
+2. Document any failures or issues found
+3. Iterate on LLM prompts to improve accuracy
+4. Move to Step 5: Advanced Features & Polish
+5. Deploy and showcase results
