@@ -1,13 +1,11 @@
-# Step 3: Core Code Implementation (Copy My Snippets, Line-by-Line)
-
+# Step 3: Core Code Implementation
 ## Overview
 
 We'll build MVP: UI input → LLM translate to KQL/EQL → Mock execute on data → Enrich + Display.
 
 ## Core Files Implementation
 
-### src/translator.py (LLM translation—heart of it)
-
+### src/translator.py (LLM Translation Module)
 ```python
 import ollama
 from langchain.prompts import PromptTemplate
@@ -23,8 +21,7 @@ def translate_to_query(nl_query, target_lang='KQL'):
     return response['response'].strip()  # Clean output
 ```
 
-### src/hunter.py (Execute query on data—mock for now)
-
+### src/hunter.py (Query Execution on Simulated Data)
 ```python
 import pandas as pd
 
@@ -118,12 +115,10 @@ if st.button("Hunt"):
 5. Deploy and share for review.
 
 
-# Step 4: Data & Testing (Prove It Works, or It's Useless)
 
 ## Overview
 
-This step focuses on creating test data, implementing unit tests, validating your implementation, and collecting metrics to prove your tool works.
-
+# Step 4: Data Generation & Testing
 ## 1. Generate Sample Data
 
 **File:** `data/sample_logs.json`
