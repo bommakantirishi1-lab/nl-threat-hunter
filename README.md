@@ -1,4 +1,3 @@
-# Step 3: Core Code Implementation
 ## Overview
 
 We'll build MVP: UI input → LLM translate to KQL/EQL → Mock execute on data → Enrich + Display.
