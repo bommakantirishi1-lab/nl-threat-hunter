@@ -117,7 +117,6 @@ if st.button("Hunt"):
 
 ## Overview
 
-# Step 4: Data Generation & Testing
 ## 1. Generate Sample Data
 
 **File:** `data/sample_logs.json`
@@ -311,9 +310,6 @@ print(f"Query Translation Accuracy: {accuracy}%")
 4. Move to Step 5: Advanced Features & Polish
 5. Deploy and showcase results
 
-
-# Step 5: Advanced Features & Enhancements
-
 Once the core functionality is working, consider adding the following enhancements:
 
 ### MITRE ATT&CK Integration
@@ -337,8 +333,6 @@ Once the core functionality is working, consider adding the following enhancemen
 - Create a Dockerfile for containerized deployment
 - Configure deployment to cloud platforms (Heroku, AWS, or Azure)
 
-# Step 6: Documentation & Deployment
-
 ### README Documentation
 
 Create comprehensive documentation including:
@@ -360,8 +354,6 @@ Create comprehensive documentation including:
 2. Configure environment variables for API keys and sensitive data
 3. Push code to the deployment platform
 4. Update README with live demo link: `Demo: https://nl-threat-hunter.herokuapp.com`
-
-# Step 7: Project Completion & Next Steps
 
 ### Final Tasks
 
